@@ -22,17 +22,19 @@ export default class DrawingService {
 		
 		return bullet;
 	};
-	static createDrawEnemy = function(x, y, ind) {
+	static createDrawEnemy = (x, y) => {
 		const enemy = new createjs.Shape();
 		const size = Utils.getRandomInt(50, 100);
 		enemy.graphics
 			.beginFill('#f35')
 			.drawRect(x-size/2, y-size/2, size, size)
 			.endFill();
-		enemy.width = size; enemy.height = size;
+		
+		enemy.width = size; 
+		enemy.height = size;
 		enemy.name = 'enemy';
 		return enemy;
-	}
+	};
 	static drawEnemy(x, y, size, graphics, color) {
 		graphics
 		.beginFill(color)
@@ -46,19 +48,21 @@ export default class DrawingService {
 			.drawCircle(x, y, radius)
 			.endFill();
 
+		return point;
+	}
+
+	static drawScore(x, y, score) {
 		const text = new createjs.Text();
 		text.set({
-			text: `(${x}; ${y})`,
+			text: score.toString(10),
 			textAlign: "center",
 			textBaseline: "middle",
-			font: '30px "Segoe UI Semilight"',
+			font: '70px "Segoe UI Semilight"',
 			color: '#FFF',
 			x: x,
 			y: y
 			});
-
-		const container = new createjs.Container().addChild(point, text)
-		return container;
+		return text;
 	}
 
 	static drawGameOver(x, y) {

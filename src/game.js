@@ -12,6 +12,7 @@ export default class Game {
 		this.stage.width = canvas.width;
 		this.stage.height = canvas.height;
 		this.bulletTree = new QuadTree(new Box(0, 0, this.stage.width, this.stage.height));
+		this.score = 0;
 
 		this.sides = [
 			{ // top
@@ -112,6 +113,14 @@ export default class Game {
 		this.stage.getChildByName('enemies').addChild(enemy);
 	}
 
+	initScore() {
+		const score = DrawingService.drawScore(100, this.stage.height - 100, this.score);
+		score.x = 200;
+		score.y = this.stage.height - 50;
+		score.name = 'score';
+		this.stage.addChild(score);
+	}
+
 	init() {
 		let self = this;
 		document.addEventListener('click', e => this.shoot(e, self));
@@ -125,6 +134,7 @@ export default class Game {
 			this.createEnemy()
 		}, 500);
 		
+		this.initScore();
 		this.stage.update();
 	}
 
@@ -160,8 +170,6 @@ export default class Game {
 			if (child.name === 'bullet') {
 				child.x += child.velocityX;
 				child.y += child.velocityY;
-				// child.regX = child.x;
-				// child.regY = child.y;
 			
 				if (child.x < this.stage.x || child.x > (this.stage.width + this.stage.x)
 					|| child.y < this.stage.y || child.y > (this.stage.height + this.stage.y)) {
@@ -195,13 +203,10 @@ export default class Game {
 		for (let i = 0; i < enemyContainer.children.length; i++) {
 			child = enemyContainer.children[i];
 
-			// child.rotation = 90 + this.calculateAngle({ x: child.x, y: child.y }, { x: player.x , y: player.y })
 			child.x += child.velocityX;
 			child.y += child.velocityY;
 
 			this.checkIfGameOver(child);
-			// child.regX = child.x;
-			// child.regY = child.y;
 
 			if (child.x < -30 || child.x > (this.stage.width + this.stage.x + 30)
 				|| child.y < -30  || child.y > (this.stage.height + this.stage.y + 30)) {
@@ -209,16 +214,17 @@ export default class Game {
 			} else {
 				enemy = this.bulletTree.query(new Box(child.x-child.width/2, child.y-child.width/2, child.width, child.height));
 				if (enemy.length !== 0) {
-					console.log('remove');
+					this.score += child.width;
 					enemyContainer.removeChildAt(i);
 					this.stage.removeChild(this.stage.getChildAt(enemy[0].data.ind));
-
-					// enemyShape.graphics.clear();
-					// DrawingService.drawEnemy(enemy.x, enemy.y, 20, enemy.graphics);
-					// console.log(enemyContainer.removeChild(enemyShape));
 				}
 			}
 		};
+	}
+
+	updateScore() {
+		const score = this.stage.getChildByName('score');
+		score.text = this.score;
 	}
 
 	update() {
@@ -227,6 +233,8 @@ export default class Game {
 		this.bulletTree.clear();
 		this.updateBulletPos();
 		this.updateEnemiesPos();
+
+		this.updateScore();
 	}
 	
 	draw() {
@@ -239,7 +247,6 @@ export default class Game {
 	}
 
 	gameOver() {
-		console.log('fuck');
 		this.stage.addChild(DrawingService.drawGameOver(this.stage.width/2, this.stage.height/2));
 		this.stage.addChild(DrawingService.drawGameOverDetails(this.stage.width/2, this.stage.height/1.15));
 		this.stage.update();
